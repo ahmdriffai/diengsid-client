@@ -7,6 +7,9 @@ import { Google_Sans } from "next/font/google";
 import { Toaster } from "react-hot-toast";
 import "swiper/css";
 import "./globals.css";
+import MetaPixel from "@/components/MetaPixel";
+import { Suspense } from "react";
+import MetaPixelPageTracker from "@/components/MetaPixelPageTracker";
 
 const websiteJsonLd = {
   "@context": "https://schema.org",
@@ -23,8 +26,7 @@ const websiteJsonLd = {
         "@type": "SearchAction",
         target: {
           "@type": "EntryPoint",
-          urlTemplate:
-            "https://diengs.id/search/homes?q={search_term_string}",
+          urlTemplate: "https://diengs.id/search/homes?q={search_term_string}",
         },
         "query-input": "required name=search_term_string",
       },
@@ -116,6 +118,10 @@ export default function RootLayout({
       )}
     >
       <body className="min-h-full flex flex-col">
+        <MetaPixel />
+        <Suspense fallback={null}>
+          <MetaPixelPageTracker />
+        </Suspense>
         <JsonLd data={websiteJsonLd} />
         <div>
           <Toaster />
