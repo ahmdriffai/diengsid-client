@@ -43,6 +43,8 @@ import { PropertyRecommendations } from "./property-recommendations";
 import { PropertyReviews } from "./property-reviews";
 import RoomList from "./rooms/list";
 
+import { trackInitiateCheckout } from "@/lib/fpixel";
+
 const MapViewer = dynamic(
   () => import("../../../components/shared/map-viewer/MapViewer"),
   { ssr: false },
@@ -184,12 +186,24 @@ export default function DetailProperty({
 
   const handlePesan = () => {
     if (!dateRange.start || !dateRange.end || !rentableID) return;
+
+    trackInitiateCheckout({
+      content_ids: [property?.id ?? ""],
+      content_name: property?.title ?? "",
+      content_category: "penginapan",
+      value: finalPrice,
+      currency: "IDR",
+      num_items: totalDays,
+    });
+
     const queryParams = new URLSearchParams({
       start_date: format(dateRange.start, "yyyy-MM-dd"),
       end_date: format(dateRange.end, "yyyy-MM-dd"),
       rentable_id: rentableID,
     });
-    router.push(`/booking/penginapan/${property?.id}?${queryParams.toString()}`);
+    router.push(
+      `/booking/penginapan/${property?.id}?${queryParams.toString()}`,
+    );
   };
 
   // ── Price render ──────────────────────────────────────────────────────────

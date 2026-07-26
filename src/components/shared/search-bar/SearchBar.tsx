@@ -12,6 +12,7 @@ import { id } from "date-fns/locale";
 import { MapPin, Minus, Plus, Search } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useRef, useState } from "react";
+import { trackSearch } from "@/lib/fpixel";
 
 // ─── guest types ──────────────────────────────────────────────────────────────
 
@@ -148,6 +149,15 @@ export default function SearchBar({
     params.set("adults", String(guests.adult));
     if (guests.child > 0) params.set("children", String(guests.child));
     if (guests.baby > 0) params.set("babies", String(guests.baby));
+
+    const searchQuery = location.trim();
+    if (searchQuery) {
+      trackSearch(searchQuery, {
+        content_category: "penginapan",
+        num_items: guests.adult + guests.child + guests.baby,
+      });
+    }
+
     setActive(null);
     onSearch?.();
     router.push(`/search/homes?${params.toString()}`);

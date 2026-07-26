@@ -1,3 +1,4 @@
+import MetaPixelViewContentTracker from "@/components/MetaPixelViewContentTracker";
 import { Footer } from "@/components/shared/footer/footer";
 import { JsonLd } from "@/components/shared/json-ld";
 import Navbar from "@/components/shared/navbar/navbar";
@@ -129,6 +130,11 @@ export default async function DetailPropertyPage({
                 },
               ],
             }}
+          />
+          <MetaPixelViewContentTracker
+            propertyId={property.id}
+            propertyName={property.title}
+            price={minPrice}
           />
         </>
       )}
