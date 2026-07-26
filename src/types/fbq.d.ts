@@ -6,6 +6,12 @@ declare global {
   interface Window {
     fbq: {
       (command: "init", pixelId: string): void;
+      (
+        command: "set",
+        property: "autoConfig",
+        value: boolean,
+        pixelId: string,
+      ): void;
       (command: "track", eventName: string, params?: FbPixelEventParams): void;
       (
         command: "trackCustom",
