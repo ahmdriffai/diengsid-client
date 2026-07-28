@@ -11,7 +11,12 @@ import { useRouter } from "next/navigation";
 import type React from "react";
 import { forwardRef, useRef, useState } from "react";
 import { useAuthGoogle } from "../hooks/use-auth-google";
-import { useLogin, useRegister, useSendOtp, useVerifyOtp } from "../hooks/use-auth";
+import {
+  useLogin,
+  useRegister,
+  useSendOtp,
+  useVerifyOtp,
+} from "../hooks/use-auth";
 import {
   EmailSchema,
   OtpSchema,
@@ -19,6 +24,7 @@ import {
   RegisterPasswordSchema,
   RegisterSchema,
 } from "../schemas/auth-schema";
+import { trackCompleteRegistration } from "@/lib/fpixel";
 
 // Steps:
 // login flow:    email → otp → password
@@ -70,7 +76,10 @@ export default function Login({ onClose, onSuccess }: Props): React.ReactNode {
   const register = useRegister();
 
   const isPending =
-    sendOtp.isPending || verifyOtp.isPending || login.isPending || register.isPending;
+    sendOtp.isPending ||
+    verifyOtp.isPending ||
+    login.isPending ||
+    register.isPending;
 
   const handleSuccess = () => {
     router.refresh();
@@ -122,7 +131,10 @@ export default function Login({ onClose, onSuccess }: Props): React.ReactNode {
   const handleVerifyOtp = () => {
     const code = otp.join("");
     const result = OtpSchema.safeParse({ otp: code });
-    if (!result.success) { setOtpError(result.error.errors[0].message); return; }
+    if (!result.success) {
+      setOtpError(result.error.errors[0].message);
+      return;
+    }
     setOtpError("");
     verifyOtp.mutate(
       { email, otp: code },
@@ -152,7 +164,8 @@ export default function Login({ onClose, onSuccess }: Props): React.ReactNode {
         onSuccess: handleSuccess,
         onError: (e) =>
           passwordForm.setError("password", {
-            message: e instanceof Error ? e.message : "Email atau password salah.",
+            message:
+              e instanceof Error ? e.message : "Email atau password salah.",
           }),
       },
     );
@@ -164,7 +177,12 @@ export default function Login({ onClose, onSuccess }: Props): React.ReactNode {
     register.mutate(
       { name, email, password: data.password },
       {
-        onSuccess: handleSuccess,
+        onSuccess: () => {
+          trackCompleteRegistration({
+            content_name: "Register Account",
+          });
+          handleSuccess();
+        },
         onError: (e) =>
           registerPasswordForm.setError("password", {
             message: e instanceof Error ? e.message : "Registrasi gagal.",
@@ -184,11 +202,15 @@ export default function Login({ onClose, onSuccess }: Props): React.ReactNode {
   };
 
   const handleOtpKeyDown = (i: number, e: React.KeyboardEvent) => {
-    if (e.key === "Backspace" && !otp[i] && i > 0) otpRefs.current[i - 1]?.focus();
+    if (e.key === "Backspace" && !otp[i] && i > 0)
+      otpRefs.current[i - 1]?.focus();
   };
 
   const handleOtpPaste = (e: React.ClipboardEvent) => {
-    const pasted = e.clipboardData.getData("text").replace(/\D/g, "").slice(0, 6);
+    const pasted = e.clipboardData
+      .getData("text")
+      .replace(/\D/g, "")
+      .slice(0, 6);
     if (!pasted) return;
     e.preventDefault();
     const next = [...pasted.split(""), ...Array(6).fill("")].slice(0, 6);
@@ -202,8 +224,10 @@ export default function Login({ onClose, onSuccess }: Props): React.ReactNode {
     setOtpError("");
     if (step === "otp") setStep(flow === "register" ? "register" : "email");
     else if (step === "password") setStep("otp");
-    else if (step === "register") { setFlow("login"); setStep("email"); }
-    else if (step === "register-password") setStep("otp");
+    else if (step === "register") {
+      setFlow("login");
+      setStep("email");
+    } else if (step === "register-password") setStep("otp");
     else onClose?.();
   };
 
@@ -235,9 +259,17 @@ export default function Login({ onClose, onSuccess }: Props): React.ReactNode {
       <div className="py-6 px-1 flex-1">
         {/* Logo + title */}
         <div className="flex flex-col items-center mb-6 gap-2">
-          <Image width={40} height={40} src="/logo.png" alt="dieng.id" className="w-10" />
+          <Image
+            width={40}
+            height={40}
+            src="/logo.png"
+            alt="dieng.id"
+            className="w-10"
+          />
           <h1 className="text-xl font-semibold">{titles[step]}</h1>
-          {(step === "otp" || step === "password" || step === "register-password") && (
+          {(step === "otp" ||
+            step === "password" ||
+            step === "register-password") && (
             <p className="text-sm text-zinc-500">{maskEmail(email)}</p>
           )}
         </div>
@@ -274,7 +306,9 @@ export default function Login({ onClose, onSuccess }: Props): React.ReactNode {
                   )
                 }
                 onError={() =>
-                  emailForm.setError("email", { message: "Login Google gagal." })
+                  emailForm.setError("email", {
+                    message: "Login Google gagal.",
+                  })
                 }
               />
             </div>
@@ -332,7 +366,9 @@ export default function Login({ onClose, onSuccess }: Props): React.ReactNode {
               {otp.map((digit, i) => (
                 <input
                   key={i}
-                  ref={(el) => { otpRefs.current[i] = el; }}
+                  ref={(el) => {
+                    otpRefs.current[i] = el;
+                  }}
                   type="text"
                   inputMode="numeric"
                   maxLength={1}
@@ -361,7 +397,10 @@ export default function Login({ onClose, onSuccess }: Props): React.ReactNode {
 
             <p className="text-center text-sm text-zinc-500">
               Tidak menerima kode?{" "}
-              <TextButton onClick={handleResendOtp} disabled={sendOtp.isPending}>
+              <TextButton
+                onClick={handleResendOtp}
+                disabled={sendOtp.isPending}
+              >
                 Kirim ulang
               </TextButton>
             </p>
@@ -397,7 +436,8 @@ export default function Login({ onClose, onSuccess }: Props): React.ReactNode {
         {step === "register-password" && (
           <form onSubmit={handleRegister} className="space-y-4">
             <p className="text-sm text-zinc-500 text-center">
-              Buat password untuk akun <span className="font-medium">{name}</span>
+              Buat password untuk akun{" "}
+              <span className="font-medium">{name}</span>
             </p>
             <PasswordInput
               label="Password (min. 8 karakter)"
@@ -467,7 +507,10 @@ const PasswordInput = forwardRef<
     error?: string;
     autoFocus?: boolean;
   } & React.InputHTMLAttributes<HTMLInputElement>
->(function PasswordInput({ label, show, onToggle, error, autoFocus, ...rest }, ref) {
+>(function PasswordInput(
+  { label, show, onToggle, error, autoFocus, ...rest },
+  ref,
+) {
   return (
     <div className="relative">
       <Input

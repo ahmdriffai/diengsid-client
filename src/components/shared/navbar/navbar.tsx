@@ -29,6 +29,7 @@ import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import type React from "react";
 import { useEffect, useRef, useState } from "react";
+import { trackContact } from "@/lib/fpixel";
 
 interface Props {
   isFixed?: boolean;
@@ -592,6 +593,9 @@ export default function Navbar({
                 href="https://wa.me/6285174366013?text=Halo%2C%20saya%20ingin%20mendaftarkan%20properti%20di%20Diengs.id"
                 target="_blank"
                 rel="noopener noreferrer"
+                onClick={() =>
+                  trackContact({ content_category: "whatsapp_host_inquiry" })
+                }
                 className="hidden lg:flex items-center gap-1.5 rounded-full border border-zinc-200 px-4 py-2 text-sm font-medium text-zinc-700 transition hover:bg-zinc-50 hover:shadow-sm"
               >
                 Menjadi tuan rumah
