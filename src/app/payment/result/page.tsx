@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { CheckCircle2, XCircle } from "lucide-react";
+import MetaPixelPurchaseTracker from "@/components/MetaPixelPurchaseTracker";
 
 export const metadata: Metadata = {
   title: "Hasil Pembayaran",
@@ -20,10 +21,19 @@ export default async function PaymentResultPage({ searchParams }: Props) {
 
   return (
     <div className="min-h-screen bg-zinc-50 flex flex-col">
+      {isSuccess && bookingId && (
+        <MetaPixelPurchaseTracker bookingId={bookingId} />
+      )}
       <header className="bg-white border-b">
         <div className="max-w-3xl mx-auto px-6 h-16 flex items-center">
           <Link href="/">
-            <Image src="/logo2.png" alt="diengsid" width={110} height={30} priority />
+            <Image
+              src="/logo2.png"
+              alt="diengsid"
+              width={110}
+              height={30}
+              priority
+            />
           </Link>
         </div>
       </header>
@@ -36,9 +46,12 @@ export default async function PaymentResultPage({ searchParams }: Props) {
                 <CheckCircle2 size={40} />
               </div>
               <div>
-                <h1 className="text-2xl font-semibold text-zinc-900">Pembayaran berhasil!</h1>
+                <h1 className="text-2xl font-semibold text-zinc-900">
+                  Pembayaran berhasil!
+                </h1>
                 <p className="text-zinc-500 mt-2 text-sm">
-                  Terima kasih. Pembayaran Anda telah diterima dan booking dikonfirmasi.
+                  Terima kasih. Pembayaran Anda telah diterima dan booking
+                  dikonfirmasi.
                 </p>
               </div>
             </>
@@ -48,9 +61,12 @@ export default async function PaymentResultPage({ searchParams }: Props) {
                 <XCircle size={40} />
               </div>
               <div>
-                <h1 className="text-2xl font-semibold text-zinc-900">Pembayaran gagal</h1>
+                <h1 className="text-2xl font-semibold text-zinc-900">
+                  Pembayaran gagal
+                </h1>
                 <p className="text-zinc-500 mt-2 text-sm">
-                  Pembayaran tidak berhasil diproses. Silakan coba lagi atau hubungi layanan pelanggan.
+                  Pembayaran tidak berhasil diproses. Silakan coba lagi atau
+                  hubungi layanan pelanggan.
                 </p>
               </div>
             </>
@@ -58,13 +74,17 @@ export default async function PaymentResultPage({ searchParams }: Props) {
 
           {invoice && (
             <div className="bg-zinc-50 border border-zinc-200 rounded-xl px-5 py-3 text-sm text-zinc-600 w-full">
-              No. Invoice: <span className="font-mono font-semibold">{invoice}</span>
+              No. Invoice:{" "}
+              <span className="font-mono font-semibold">{invoice}</span>
             </div>
           )}
 
           <div className="flex gap-3 w-full">
             {bookingId ? (
-              <Link href={`/booking/konfirmasi/${bookingId}`} className="flex-1">
+              <Link
+                href={`/booking/konfirmasi/${bookingId}`}
+                className="flex-1"
+              >
                 <button className="w-full px-4 py-2 rounded-xl bg-zinc-900 text-white text-sm font-medium hover:bg-zinc-700 transition-colors">
                   Lihat booking
                 </button>
